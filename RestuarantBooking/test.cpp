@@ -1,5 +1,7 @@
 ﻿#include "gmock/gmock.h"
 #include "booking_scheduler.cpp"
+#include "monday_booking_scheduler.cpp"
+#include "sunday_booking_scheduler.cpp"
 #include "testable_sms_sender.cpp"
 #include "testable_mail_sender.cpp"
 
@@ -93,11 +95,22 @@ TEST_F(BookingItem, 이메일이있는경우에는이메일발송) {
 }
 
 TEST_F(BookingItem, 현재날짜가일요일인경우예약불가예외처리) {
-
+	SundayBookingScheduler sundayBookingScheduler{ CAPACITY_PER_HOUR };
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER_WITH_MAIL };
+	try {
+		sundayBookingScheduler.addSchedule(schedule);
+		FAIL();
+	}
+	catch (std::runtime_error& e) {
+		EXPECT_EQ(string{ e.what() }, string{ "Booking system is not available on sunday" });
+	}
 }
 
 TEST_F(BookingItem, 현재날짜가일요일이아닌경우예약가능) {
-
+	MondayBookingScheduler mondayBookingScheduler{ CAPACITY_PER_HOUR };
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER_WITH_MAIL };
+	mondayBookingScheduler.addSchedule(schedule);
+	EXPECT_TRUE(mondayBookingScheduler.hasSchedule(schedule));
 }
 
 int main() {
