@@ -1,39 +1,62 @@
-#include "gmock/gmock.h"
+ï»¿#include "gmock/gmock.h"
 #include "booking_scheduler.cpp"
+time_t getTime(int year, int mon, int day, int hour, int min, int sec) {
+	tm result = { sec, min, hour, day, mon - 1, year - 1900, 0, 0, -1 };
+	return mktime(&result);
+}
 
-TEST(BookingSchedulerTest, ¿¹¾àÀºÁ¤½Ã¿¡¸¸°¡´ÉÇÏ´ÙÁ¤½Ã°¡¾Æ´Ñ°æ¿ì¿¹¾àºÒ°¡) {
+string getTimeString(const tm& tmTime) {
+	std::ostringstream oss;
+	oss << std::put_time(&tmTime, "%Y-%m-%d  %H:%M:%S (%A)");
+	return oss.str();
+}
+TEST(BookingSchedulerTest, ì˜ˆì•½ì€ì •ì‹œì—ë§Œê°€ëŠ¥í•˜ë‹¤ì •ì‹œê°€ì•„ë‹Œê²½ìš°ì˜ˆì•½ë¶ˆê°€) {
+	tm notOnTheHour = { 0 };
+	notOnTheHour.tm_year = 2021 - 1900;
+	notOnTheHour.tm_mon = 03 - 1;
+	notOnTheHour.tm_mday = 26;
+	notOnTheHour.tm_hour = 9;
+	notOnTheHour.tm_min = 5;
+	notOnTheHour.tm_isdst = -1;
+	mktime(&notOnTheHour);
+	Customer customer{ "Fake name", "010-1234-5678" };
+	Schedule* schedule = new Schedule{ notOnTheHour, 1, customer };
+	BookingScheduler bookingScheduler{ 3 };
+
+	EXPECT_THROW({
+	bookingScheduler.addSchedule(schedule);
+		}, std::runtime_error);
+}
+
+TEST(BookingSchedulerTest, ì˜ˆì•½ì€ì •ì‹œì—ë§Œê°€ëŠ¥í•˜ë‹¤ì •ì‹œì¸ê²½ìš°ì˜ˆì•½ê°€ëŠ¥) {
 
 }
 
-TEST(BookingSchedulerTest, ¿¹¾àÀºÁ¤½Ã¿¡¸¸°¡´ÉÇÏ´ÙÁ¤½ÃÀÎ°æ¿ì¿¹¾à°¡´É) {
+TEST(BookingSchedulerTest, ì‹œê°„ëŒ€ë³„ì¸ì›ì œí•œì´ìžˆë‹¤ê°™ì€ì‹œê°„ëŒ€ì—Capacityì´ˆê³¼í• ê²½ìš°ì˜ˆì™¸ë°œìƒ) {
 
 }
 
-TEST(BookingSchedulerTest, ½Ã°£´ëº°ÀÎ¿øÁ¦ÇÑÀÌÀÖ´Ù°°Àº½Ã°£´ë¿¡CapacityÃÊ°úÇÒ°æ¿ì¿¹¿Ü¹ß»ý) {
+TEST(BookingSchedulerTest, ì‹œê°„ëŒ€ë³„ì¸ì›ì œí•œì´ìžˆë‹¤ê°™ì€ì‹œê°„ëŒ€ê°€ë‹¤ë¥´ë©´Capacityì°¨ìžˆì–´ë„ìŠ¤ì¼€ì¥´ì¶”ê°€ì„±ê³µ) {
 
 }
 
-TEST(BookingSchedulerTest, ½Ã°£´ëº°ÀÎ¿øÁ¦ÇÑÀÌÀÖ´Ù°°Àº½Ã°£´ë°¡´Ù¸£¸éCapacityÂ÷ÀÖ¾îµµ½ºÄÉÁìÃß°¡¼º°ø) {
+TEST(BookingSchedulerTest, ì˜ˆì•½ì™„ë£Œì‹œSMSëŠ”ë¬´ì¡°ê±´ë°œì†¡) {
 
 }
 
-TEST(BookingSchedulerTest, ¿¹¾à¿Ï·á½ÃSMS´Â¹«Á¶°Ç¹ß¼Û) {
+TEST(BookingSchedulerTest, ì´ë©”ì¼ì´ì—†ëŠ”ê²½ìš°ì—ëŠ”ì´ë©”ì¼ë¯¸ë°œì†¡) {
 
 }
 
-TEST(BookingSchedulerTest, ÀÌ¸ÞÀÏÀÌ¾ø´Â°æ¿ì¿¡´ÂÀÌ¸ÞÀÏ¹Ì¹ß¼Û) {
+TEST(BookingSchedulerTest, ì´ë©”ì¼ì´ìžˆëŠ”ê²½ìš°ì—ëŠ”ì´ë©”ì¼ë°œì†¡) {
 
 }
 
-TEST(BookingSchedulerTest, ÀÌ¸ÞÀÏÀÌÀÖ´Â°æ¿ì¿¡´ÂÀÌ¸ÞÀÏ¹ß¼Û) {
+TEST(BookingSchedulerTest, í˜„ìž¬ë‚ ì§œê°€ì¼ìš”ì¼ì¸ê²½ìš°ì˜ˆì•½ë¶ˆê°€ì˜ˆì™¸ì²˜ë¦¬) {
 
 }
 
-TEST(BookingSchedulerTest, ÇöÀç³¯Â¥°¡ÀÏ¿äÀÏÀÎ°æ¿ì¿¹¾àºÒ°¡¿¹¿ÜÃ³¸®) {
-
-}
-
-TEST(BookingSchedulerTest, ÇöÀç³¯Â¥°¡ÀÏ¿äÀÏÀÌ¾Æ´Ñ°æ¿ì¿¹¾à°¡´É) {
+TEST(BookingSchedulerTest, í˜„ìž¬ë‚ ì§œê°€ì¼ìš”ì¼ì´ì•„ë‹Œê²½ìš°ì˜ˆì•½ê°€ëŠ¥) {
 
 }
 
