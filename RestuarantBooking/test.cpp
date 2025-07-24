@@ -4,13 +4,18 @@
 class BookingItem : public testing::Test {
 public:
 	void SetUp() override {
-		ON_THE_HOUR = getTime(2021 - 1900, 03 - 1, 26, 9, 0, 0);
-		NOT_ON_THE_HOUR = getTime(2021 - 1900, 03 - 1, 26, 9, 5, 0);
+		ON_THE_HOUR = getTime(2021, 3, 26, 9, 0);
+		NOT_ON_THE_HOUR = getTime(2021, 3, 26, 9, 5);
 	}
-	tm getTime(int year, int mon, int day, int hour, int min, int sec) {
-		tm result = { sec, min, hour, day, mon - 1, year - 1900, 0, 0, -1 };
+	tm getTime(int year, int mon, int day, int hour, int min) {
+		tm result = { 0, min, hour, day, mon - 1, year - 1900, 0, 0, -1 };
 		mktime(&result);
 		return result;
+	}
+	tm plusHour(tm base, int hour) {
+		base.tm_hour += hour;
+		mktime(&base);
+		return base;
 	}
 
 	tm ON_THE_HOUR;
@@ -49,7 +54,15 @@ TEST_F(BookingItem, 시간대별인원제한이있다같은시간대에Capacity�
 }
 
 TEST_F(BookingItem, 시간대별인원제한이있다같은시간대가다르면Capacity차있어도스케쥴추가성공) {
+	Schedule* schedule = new Schedule{ ON_THE_HOUR, CAPACITY_PER_HOUR, CUSTOMER };
+	bookingScheduler.addSchedule(schedule);
 
+	tm differentHour = plusHour(ON_THE_HOUR, 1);
+	Schedule* newSchedule = new Schedule{ differentHour, UNDER_CAPACITY, CUSTOMER };
+	bookingScheduler.addSchedule(newSchedule);
+
+	EXPECT_TRUE(bookingScheduler.hasSchedule(schedule));
+	EXPECT_TRUE(bookingScheduler.hasSchedule(newSchedule));
 }
 
 TEST_F(BookingItem, 예약완료시SMS는무조건발송) {
